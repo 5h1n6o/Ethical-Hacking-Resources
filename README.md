@@ -31,7 +31,7 @@
 
 ## Collection（収集）
 
-## Command and Contorol（C6C）
+## Command and Contorol（C2）
 
 ## Exfiltration（持ち出し）
 
