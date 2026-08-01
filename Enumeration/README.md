@@ -184,6 +184,21 @@ snmpwalk -v2c -c public <TARGET>
 
 # 7. Vulnerability Enumeration
 
+## 脆弱性調査おすすめツール
+
+|  優先度  | ツール / 手法                                  | 目的                | コマンド・検索例                                     | 確認するポイント                  |
+| :---: | :---------------------------------------- | :---------------- | :------------------------------------------- | :------------------------ |
+| ★★★★★ | **SearchSploit**                          | Exploitの有無を確認     | `searchsploit apache 2.4.18`                 | 公開Exploit、PoC、EDB-ID      |
+| ★★★★★ | **Google検索**                              | 最新の情報や攻略記事を探す     | `Apache 2.4.18 exploit`<br>`OpenSSH 7.2 CVE` | 攻略記事、GitHub、ブログ           |
+| ★★★★☆ | **NVD (National Vulnerability Database)** | CVEの詳細を確認         | `CVE-2024-6387`                              | CVSS、影響バージョン、修正版          |
+| ★★★★☆ | **GitHub**                                | PoCやExploitコードを探す | `CVE-2024-6387 github`                       | PoC、README、使用方法           |
+| ★★★★☆ | **Metasploit**                            | 利用可能なモジュールを確認     | `search apache`                              | exploit / auxiliary モジュール |
+| ★★★☆☆ | **Nmap NSE**                              | 脆弱性の簡易チェック        | `nmap --script vuln TARGET`                  | 既知の脆弱性、設定不備               |
+| ★★★☆☆ | **Exploit-DB**                            | Web上でExploitを検索   | `Apache 2.4.18 exploit`                      | Exploitコード、PoC            |
+| ★★☆☆☆ | **CVE Detailsなど**                         | 関連CVEを一覧で確認       | `Apache 2.4.18 CVE`                          | 関連CVEの一覧                  |
+
+SearchSploit → Google → NVD → GitHub → Metasploitという流れを習慣化する。
+
 ## 7.1 searchsploit
 ```
 searchsploit apache 2.4
