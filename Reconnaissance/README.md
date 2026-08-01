@@ -125,17 +125,20 @@ openssl s_client -connect <TARGET>:443
 
 ## 3. HTTP / SSL Recon
 
-### HTTP
 ```
 curl -I http://<TARGET>
 whatweb <TARGET>
 ffuf -u http://<TARGET>/FUZZ -w common.txt
+openssl s_client -connect <TARGET>:443
 ```
+
+---
+
 ### 3.1 curl
 
 偵察（Reconnaissance）段階において、**curl**はHTTP/HTTPSリクエストを発行し、ターゲットの技術スタックや隠れたリソースを特定するための非常に柔軟で強力なコマンドラインツールです。
 
-#### Recon段階で頻用される主要なオプション
+#### 頻出オプション
 
 | オプション | 説明 | 主な用途 |
 | :--- | :--- | :--- |
@@ -151,8 +154,6 @@ ffuf -u http://<TARGET>/FUZZ -w common.txt
 | **`-w`** (`--write-out`) | 出力形式の指定 | ステータスコード（`%{http_code}`）のみの抽出など。 |
 | **`-o`** (`--output`) | ファイルに保存 | 取得したデータの保存や、`/dev/null`への破棄。 |
 
----
-
 #### 具体的な活用シーンとコマンド例
 
 ##### ヘッダー情報の取得（リダイレクト追跡あり）
@@ -162,33 +163,67 @@ ffuf -u http://<TARGET>/FUZZ -w common.txt
 curl -LI http://<target_ip>
 ```
 
-#### robots.txtの取得
+##### robots.txtの取得
 
 ```
 curl http://<target_domain>/robots.txt
 ```
 
-#### 許可されているメソッドの確認
+##### 許可されているメソッドの確認
 サーバーが許可しているメソッド（`OPTIONS`, `PUT`, `DELETE`, `TRACE`など）を調査し、攻撃の糸口を探ります。
 
 ```
 curl -X OPTIONS -v http://<target_ip>
 ```
 
-#### TRACEメソッドによるデバッグ情報の確認
+##### TRACEメソッドによるデバッグ情報の確認
 
 ```
 curl -X TRACE http://<target_ip>
 ```
 
-#### ステータスコードのみ表示
+##### ステータスコードのみ表示
 多数のURLに対して、有効なページが存在するかどうかを高速に確認する場合、ステータスコードのみを出力させます。
 
 ```
 curl -s -o /dev/null -w "%{http_code}\n" http://<target_ip>
 ```
-   
-### 3.2 openssl
+
+---
+
+### 3.2 whatweb
+
+Webサイトをスキャンし、CMS、OS、サーバーソフト、JSライブラリなどの構成技術を特定します。
+
+#### 頻出オプション
+
+| オプション | 説明 |
+| :--- | :--- |
+| `URL` | スキャン対象となるWebサイトのURL（またはIPアドレス）を指定します。 |
+| `-v` | 詳細な情報を出力します（プラグインの説明なども含む。※標準的なPentestツール群の一般的知識）。 |
+
+
+#### 具体的な活用シーンとコマンド例
+
+##### ターゲットWebサイトの技術スタック（CMS、OS、サーバー等）を特定する
+
+ターゲットに対して実行することで、どのような技術でサイトが構築されているかの概要を把握できます。
+
+```
+whatweb http://192.168.50.244
+```
+
+#### 確認ポイント
+
+*   **WordPressなどのCMS名とバージョン**：脆弱性調査（WPScan等への移行）の判断材料になります。
+*   **Apache/NginxなどのWebサーバー名とバージョン**：サーバー固有の既知の脆弱性を探す手がかりになります。
+*   **Ubuntu/DebianなどのOS情報**：リバースシェルのペイロード選択や権限昇格の調査に役立ちます。
+*   **JQueryなどのJavaScriptライブラリ**：古いバージョンが使用されている場合、クライアントサイド攻撃の糸口になります。
+*   **リダイレクト設定**：`301`レスポンスや`RedirectLocation`から、真のターゲットURLや内部ドメイン名が判明することがあります。
+  
+### 3.3 ffuf
+
+### 3.4 openssl
 
 `openssl s_client` は、SSL/TLSで暗号化されたサービス（HTTPS、SMTPS、IMAPSなど）へ直接接続し、**証明書・TLS設定・暗号スイート・バナー情報**などを調査するためのコマンドです。
 
