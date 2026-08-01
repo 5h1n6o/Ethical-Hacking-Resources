@@ -20,7 +20,7 @@ Boot2Root テンプレートの **Recon 章の詳細版**として機能しま�
 ## 📘 目次
 
 1. Port Scanning  
-   - Nmap  
+   - [Nmap](https://github.com/5h1n6o/Pentest-Playbook/blob/main/Reconnaissance/README.md#11-nmap%E6%9C%80%E9%87%8D%E8%A6%81)  
    - RustScan  
    - Masscan  
 2. Banner Grab / Version Detection  
