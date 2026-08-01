@@ -3,8 +3,6 @@
 Reconnaissance は、攻撃対象に対して **技術的にアクセス可能な情報を収集するフェーズ**です。  
 OSINT（公開情報収集）とは別章であり、ここでは「実際にターゲットへアクセスして得られる情報」を扱います。
 
-Boot2Root テンプレートの **Recon 章の詳細版**として機能します。
-
 ---
 
 # 🎯 目的
@@ -14,6 +12,62 @@ Boot2Root テンプレートの **Recon 章の詳細版**として機能しま�
 - 次の Enumeration / Initial Access の方向性を決める  
 - 内部ネットワークの存在を推測する  
 - OSCP レポートで必要な「攻撃の根拠」を整理する  
+
+
+## 🔍 攻撃フロー
+1. 全ポートスキャン  
+2. サービス検出  
+3. バナー取得  
+4. OS推定  
+5. 次の Enumeration の方向性を決定する
+
+## 🛠 代表コマンド（最低限）
+### 初回ポートスキャン
+```
+nmap -sC -sV -O -T4 <TARGET>
+```
+### フルポートスキャン
+```
+nmap -sV -p- -T4 <target>
+```
+### nmapスクリプト実行
+```
+nmap --script vuln <TARGET>
+```
+
+### rustscan（高速）
+```
+rustscan -a <target> --ulimit 5000
+```
+
+### masscan（超高速）
+```
+masscan <target>/32 -p0-65535 --rate=10000
+```
+
+### バナー取得
+```
+nc <target> 80
+```
+
+```
+openssl s_client -connect <TARGET>:443
+```
+
+### ヘッダー情報
+```
+curl -LI http://<target_ip>
+```
+
+## 📚 詳細（ツールの使い方）
+ツールの詳細な使い方は Security-Tools に集約しています。
+
+- nmap → [Security-Tools / nmap ](https://github.com/5h1n6o/Pentest-Playbook/blob/main/Reconnaissance/README.md#11-nmap%E6%9C%80%E9%87%8D%E8%A6%81)  
+- curl
+- openssl
+- ffuf
+- gobuster
+- smbclient 
 
 ---
 
@@ -83,28 +137,6 @@ nmap --script vuln <TARGET>
 | **その他の古いサービス** | バナーに現れる旧バージョンの脆弱性,, | `searchsploit`によるExploit探索,,, CVE番号に基づく公開PoCの調査,, バナーグラビングによる詳細特定 |
 
 ---
-
-### 1.2 RustScan（高速）
-
-```
-rustscan -a <TARGET> --ulimit 5000 -- -sC -sV
-```
-
-#### 使いどころ
-- ポートだけ高速で知りたいとき  
-- Nmap の前処理として最適  
-
----
-
-### 1.3 Masscan（超高速）
-
-```
-masscan -p1-65535 <TARGET> --rate=10000
-```
-
-#### 使いどころ
-- 大規模ポートスキャン  
-- FW / ACL の存在確認  
 
 ---
 
