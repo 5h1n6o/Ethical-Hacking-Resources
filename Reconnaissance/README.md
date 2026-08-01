@@ -17,37 +17,38 @@ Boot2Root テンプレートの **Recon 章の詳細版**として機能しま�
 
 ---
 
-# 📘 目次
+## 📘 目次
 
 1. Port Scanning  
    - Nmap  
    - RustScan  
    - Masscan  
 2. Banner Grab / Version Detection  
-3. HTTP / SSL Recon  
-4. SMB / FTP / SSH Recon  
-5. Attack Surface Identification  
-6. Boot2Root との連携
+3. HTTP / SSL Recon
+   - curl
+5. SMB / FTP / SSH Recon  
+6. Attack Surface Identification  
+7. Boot2Root との連携
 
 ---
 
-# 1. Port Scanning
+## 1. Port Scanning
 
 ポートスキャンは Recon の中心であり、  
 **攻撃の入口を決める最重要フェーズ**です。
 
 ---
 
-## 1.1 Nmap（最重要）
+### 1.1 Nmap（最重要）
 
-### 主なスキャン
+#### 主なスキャン
 ```
 nmap -p- -T4 -v <TARGET>
 nmap -sC -sV -O -T4 <TARGET>
 nmap --script vuln <TARGET>
 ```
 
-### 確認ポイント
+#### 確認ポイント
 - 開いているポート  
 - サービスの種類  
 - バージョン（古いほど exploit が多い）  
@@ -56,7 +57,7 @@ nmap --script vuln <TARGET>
 - DB（3306 / 5432）  
 - Redis（6379）  
 
-### 頻出ポート
+#### 頻出ポート
 | Port / Service | Attack Vector（攻撃の糸口） | Next Action（次のアクション） |
 | :--- | :--- | :--- |
 | **21 / FTP** | Anonymousログイン、書き込み権限、ソース露出, | `anonymous`ログインの試行,,, ファイル一覧の確認とダウンロード,, バナーからのバージョン特定 |
@@ -82,35 +83,34 @@ nmap --script vuln <TARGET>
 
 ---
 
-## 1.2 RustScan（高速）
+### 1.2 RustScan（高速）
 
 ```
 rustscan -a <TARGET> --ulimit 5000 -- -sC -sV
 ```
 
-### 使いどころ
+#### 使いどころ
 - ポートだけ高速で知りたいとき  
 - Nmap の前処理として最適  
 
 ---
 
-## 1.3 Masscan（超高速）
+### 1.3 Masscan（超高速）
 
 ```
 masscan -p1-65535 <TARGET> --rate=10000
 ```
 
-### 使いどころ
+#### 使いどころ
 - 大規模ポートスキャン  
 - FW / ACL の存在確認  
 
 ---
 
-# 2. Banner Grab / Version Detection
+## 2. Banner Grab / Version Detection
 
 ```
 nc -nv <TARGET> <PORT>
-curl -I http://<TARGET>
 openssl s_client -connect <TARGET>:443
 ```
 
@@ -122,7 +122,7 @@ openssl s_client -connect <TARGET>:443
 
 ---
 
-# 3. HTTP / SSL Recon
+## 3. HTTP / SSL Recon
 
 ### HTTP
 ```
@@ -130,7 +130,63 @@ curl -I http://<TARGET>
 whatweb <TARGET>
 ffuf -u http://<TARGET>/FUZZ -w common.txt
 ```
+### 3.1 curl
 
+偵察（Reconnaissance）段階において、**curl**はHTTP/HTTPSリクエストを発行し、ターゲットの技術スタックや隠れたリソースを特定するための非常に柔軟で強力なコマンドラインツールです。
+
+#### Recon段階で頻用される主要なオプション
+
+| オプション | 説明 | 主な用途 |
+| :--- | :--- | :--- |
+| **`-I`** (`--head`) | ヘッダーのみ取得 | バナーグラビング、サーバー情報の特定。 |
+| **`-L`** (`--location`) | リダイレクトを追跡 | 301/302リダイレクト先の最終的なURLを確認。 |
+| **`-s`** (`--silent`) | サイレントモード | 進捗やエラーを非表示にし、スクリプトでの利用に最適。 |
+| **`-v`** (`--verbose`) | 詳細表示 | リクエスト/レスポンスヘッダーやTLSハンドシェイクの確認。 |
+| **`-X`** | HTTPメソッドの指定 | `POST`, `PUT`, `OPTIONS`, `TRACE` などの動作確認。 |
+| **`-H`** (`--header`) | カスタムヘッダーの追加 | 特定のトークン送信や、WAF回避のテスト。 |
+| **`-A`** (`--user-agent`) | User-Agentの指定 | ブラウザの偽装、レート制限の回避テスト。 |
+| **`-b`** (`--cookie`) | クッキーの送信 | 認証後のセッション維持が必要な調査。 |
+| **`-d`** (`--data`) | データの送信 | `POST`リクエストでのパラメータ送信。 |
+| **`-w`** (`--write-out`) | 出力形式の指定 | ステータスコード（`%{http_code}`）のみの抽出など。 |
+| **`-o`** (`--output`) | ファイルに保存 | 取得したデータの保存や、`/dev/null`への破棄。 |
+
+---
+
+#### 具体的な活用シーンとコマンド例
+
+##### ヘッダー情報の取得（リダイレクト追跡あり）
+`Server`ヘッダー（例: `Apache/2.4.10 (Debian)`）や `X-Powered-By`（例: `PHP/5.2.4`）から情報を収集します。
+
+```
+curl -LI http://<target_ip>
+```
+
+#### robots.txtの取得
+
+```
+curl http://<target_domain>/robots.txt
+```
+
+#### 許可されているメソッドの確認
+サーバーが許可しているメソッド（`OPTIONS`, `PUT`, `DELETE`, `TRACE`など）を調査し、攻撃の糸口を探ります。
+
+```
+curl -X OPTIONS -v http://<target_ip>
+```
+
+#### TRACEメソッドによるデバッグ情報の確認
+
+```
+curl -X TRACE http://<target_ip>
+```
+
+#### ステータスコードのみ表示
+多数のURLに対して、有効なページが存在するかどうかを高速に確認する場合、ステータスコードのみを出力させます。
+
+```
+curl -s -o /dev/null -w "%{http_code}\n" http://<target_ip>
+```
+   
 ### SSL
 ```
 openssl s_client -connect <TARGET>:443
