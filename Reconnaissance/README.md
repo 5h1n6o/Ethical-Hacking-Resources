@@ -15,27 +15,34 @@ OSINT（公開情報収集）とは別章であり、ここでは「実際にタ
 
 
 ## 🔍 攻撃フロー
-1. 全ポートスキャン  
+1. フルポートスキャン  
 2. サービス検出  
 3. バナー取得  
 4. OS推定  
 5. 次の Enumeration の方向性を決定する
 
-## 🛠 代表コマンド（最低限）
+## 🛠 代表コマンドの使用例
+
 ### 初回ポートスキャン
+
 ```
 nmap -sC -sV -O -T4 <TARGET>
 ```
+
 ### フルポートスキャン
+
 ```
 nmap -sV -p- -T4 <target>
 ```
+
 ### nmapスクリプト実行
+
 ```
 nmap --script vuln <TARGET>
 ```
 
 ### rustscan（高速）
+
 ```
 rustscan -a <target> --ulimit 5000
 ```
@@ -46,6 +53,7 @@ masscan <target>/32 -p0-65535 --rate=10000
 ```
 
 ### バナー取得
+
 ```
 nc <target> 80
 ```
@@ -55,6 +63,7 @@ openssl s_client -connect <TARGET>:443
 ```
 
 ### ヘッダー情報
+
 ```
 curl -LI http://<target_ip>
 ```
