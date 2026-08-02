@@ -32,7 +32,6 @@ Recon で特定した Attack Surface を、
 - **FTP**：匿名ログイン、書き込み可否  
 - **SSH**：バージョン、脆弱な暗号化方式  
 - **DB（MySQL / PostgreSQL）**：弱パスワード、権限  
-- **Redis / Memcached**：未認証アクセス  
 - **メール（SMTP / IMAP）**：VRFY / EXPN  
 - **内部 Web**：Pivot 必須のサービス
 
