@@ -84,14 +84,8 @@ Recon の結果から、攻撃可能な面を特定する。
 ツールの詳細な使い方は Security-Tools に集約しています。
 
 - [nmap](https://github.com/5h1n6o/Pentest-Playbook/blob/main/Reconnaissance/README.md#11-nmap%E6%9C%80%E9%87%8D%E8%A6%81)  
-- [nc(netcat)]()
-- [curl]()
-- [openssl]()
-- [ffuf]()
-- [gobuster]()
-- [whatweb]()
-- [smbclient]() 
-
+- [nc(netcat)](https://github.com/5h1n6o/Security-Tools/blob/main/netcat/README.md)
+- [curl]([Curl/README.md](https://github.com/5h1n6o/Security-Tools/blob/main/Curl/README.md))
 
 ## 📘Boot2Root との連携
 
