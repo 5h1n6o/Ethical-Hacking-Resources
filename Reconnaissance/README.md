@@ -46,7 +46,7 @@ nmap -sn xx.xx.xx.\*
 ### nmapスクリプト実行
 
 ```
-nmap --script vuln <TARGET>
+nmap --script discovery <TARGET>
 ```
 
 ### rustscan（高速）
