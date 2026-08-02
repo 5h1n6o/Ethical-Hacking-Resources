@@ -25,13 +25,22 @@ OSINT（公開情報収集）とは別章であり、ここでは「実際にタ
 ### 初回ポートスキャン
 
 ```
-nmap -sC -sV -O -T4 <TARGET>
+nmap -Pn -T4 -A -oN scanlog.txt <TARGET>
+nmap -Pn -T4 -A -oX scanlog.xml <TARGET>
 ```
 
 ### フルポートスキャン
 
 ```
-nmap -sV -p- -T4 <target>
+nmap -Pn -T4 -A -p- <target>
+```
+
+### ネットワークに対するスキャン
+
+```
+nmap -sn xx.xx.xx.0/24
+nmap -sn xx.xx.xx.1-253
+nmap -sn xx.xx.xx.\*
 ```
 
 ### nmapスクリプト実行
