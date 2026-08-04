@@ -25,14 +25,21 @@ OSINT（公開情報収集）とは別章であり、ここでは「実際にタ
 ### 初回ポートスキャン
 
 ```
-nmap -Pn -T4 -A -oN scanlog.txt <TARGET>
-nmap -Pn -T4 -A -oX scanlog.xml <TARGET>
+nmap -Pn -T4 -A -oN scanlog.txt <TARGET_IP>
+nmap -Pn -T4 -A -oX scanlog.xml <TARGET_IP>
 ```
 
 ### フルポートスキャン
 
 ```
-nmap -Pn -T4 -A -p- <target>
+nmap -Pn -T4 -A -p- <TARGET_IP>
+nmap -p- --min-rate 5000 -sS -Pn <TARGET_IP> -oN nmap_all_tcp.txt
+```
+
+### UDP Top 100 Scan
+
+```
+nmap -sU --top-ports 100 -Pn <TARGET_IP> -oN nmap_udp.txt
 ```
 
 ### ネットワークに対するスキャン
@@ -46,8 +53,8 @@ nmap -sn xx.xx.xx.\*
 ### nmapスクリプト実行
 
 ```
-nmap --script discovery <TARGET>
-nmap --script vuln <TARGET>
+nmap --script discovery <TARGET_IP>
+nmap --script vuln <TARGET_IP>
 ```
 
 ### rustscan（高速）
