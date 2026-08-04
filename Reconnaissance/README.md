@@ -47,6 +47,7 @@ nmap -sn xx.xx.xx.\*
 
 ```
 nmap --script discovery <TARGET>
+nmap --script vuln <TARGET>
 ```
 
 ### rustscan（高速）
@@ -81,14 +82,49 @@ curl -LI http://<target_ip>
 Recon の結果から、攻撃可能な面を特定する。
 
 ### 主な攻撃面
-- Web（最も突破口が多い）  
-- SMB（認証情報）  
-- FTP（WebShell）  
-- DB（弱パスワード）  
-- Redis（未認証）  
-- 内部 Web（Pivot 必須）  
+- **Web**（最も突破口が多い）  
+- **SMB**（認証情報・共有）  
+- **FTP**（WebShell配置）  
+- **DB（MySQL/MSSQL）**（弱パスワード）  
+- **Redis**（未認証）  
+- **SSH**（弱パスワード / 鍵）  
+- **内部 Web**（Pivot 必須）  
+- **AD関連サービス（SMB / LDAP / Kerberos）**  
+  - OSCP 2024+ では特に重要  
+  - Kerberoasting / AS-REP Roasting の前提確認  
+  - LDAP でユーザー列挙可能か  
+  - SMB で共有が見えるか
 
+## 🧪 チートシート：Recon で確認すべき項目
 
+### 🔹 SMB（後続の Enumeration に必須）
+- ポート 445 が開いているか  
+- Anonymous アクセス可否  
+- ドメイン名の取得  
+
+### 🔹 LDAP
+- ポート 389 / 636  
+- BaseDN の推測  
+- ユーザー列挙の可否  
+
+### 🔹 Kerberos
+- ポート 88  
+- ドメイン名  
+- AS-REP Roasting の対象ユーザーが存在しそうか  
+
+### 🔹 MSSQL
+- ポート 1433  
+- 認証方式  
+- xp_cmdshell の可能性  
+
+### 🔹 WinRM
+- ポート 5985 / 5986  
+- 後続の Initial Access に直結  
+
+### 🔹 SNMP / SMTP / NFS
+- OSCP では情報漏洩の起点になりやすい  
+
+---
 ## 📚 詳細（ツールの使い方）
 ツールの詳細な使い方は Security-Tools に集約しています。
 
