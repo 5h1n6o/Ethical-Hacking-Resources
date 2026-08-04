@@ -96,28 +96,29 @@ Pentest-Playbook では「判断基準」を記述する。
 
 ### Directory / File Enumeration
 ```
-ffuf -u http://<TARGET>/FUZZ -w common.txt -e php,txt,bak,old
-dirsearch -u http://<TARGET>
+ffuf -u http://<TARGET_IP>/FUZZ -w /usr/share/wordlists/dirb/common.txt -e .php,.txt,.html -mc 200,204,301,302,307,403
+ffuf -u http://<TARGET_IP> -H "Host: FUZZ.domain.local" -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <DEFAULT_SIZE>
+dirsearch -u http://<TARGET_IP>
 ```
 
 ### Web Enumeration
 ```
-curl -I http://<TARGET>
-whatweb <TARGET>
-ffuf -u http://<TARGET>/FUZZ -w common.txt -e php,txt,bak,old
-dirsearch -u http://<TARGET>
-nikto -h http://<TARGET>
-curl http://<TARGET>/app.js
+curl -I http://<TARGET_IP>
+whatweb <TARGET_IP>
+ffuf -u http://<TARGET_IP>/FUZZ -w common.txt -e php,txt,bak,old
+dirsearch -u http://<TARGET_IP>
+nikto -h http://<TARGET_IP>
+curl http://<TARGET_IP>/app.js
 ```
 
 ### SMB Enumeration
 ```
-smbclient -N -L //<TARGET>/
-smbclient //<TARGET>/<SHARE>
-smbmap -H <TARGET>
-enum4linux-ng <TARGET>
-netexec smb <TARGET> -u '' -p ''
-rpcclient -U '' <TARGET>
+smbclient -N -L //<TARGET_IP>/
+smbclient //<TARGET_IP>/<SHARE>
+smbmap -H <TARGET_IP>
+enum4linux-ng <TARGET_IP>
+netexec smb <TARGET_IP> -u '' -p ''
+rpcclient -U '' <TARGET_IP>
 ```
 
 ### LDAP Enumeration（OSCP強化）
