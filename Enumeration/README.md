@@ -7,10 +7,11 @@ Enumeration は、Reconnaissance で見つけたサービスを **深掘りし�
 ## 🎯 目的
 
 - Recon で見つけたサービスを詳細に分析する  
-- Web / SMB / FTP / SSH / DB などの内部構造を把握する  
+- Web / SMB / FTP / SSH / DB / AD などの内部構造を把握する  
 - 脆弱性の有無を確認する  
+- 認証情報の有無を確認する  
 - 初期侵入（Initial Access）につながる突破口を見つける  
-
+- AD 攻撃の前提情報（LDAP / Kerberos / SMB）を抽出する  
 ---
 
 ## 🔍 攻撃フロー
@@ -18,7 +19,7 @@ Enumeration は、Reconnaissance で見つけたサービスを **深掘りし�
 2. サービスごとの詳細調査（プロトコル・バージョン・設定）
 3. 脆弱性の有無を確認（NSE / スクリプト / 手動検証）
 4. 認証情報の探索（弱パスワード・デフォルト設定）
-5. Web / SMB / FTP / DB などの個別列挙
+5. Web / SMB / FTP / DB / AD などの個別列挙
 6. 初期侵入につながるポイントを抽出
 
 ---
@@ -27,14 +28,65 @@ Enumeration は、Reconnaissance で見つけたサービスを **深掘りし�
 Recon で特定した Attack Surface を、  
 サービス単位でさらに詳細に調査する。
 
-- **Web**：ディレクトリ列挙、技術スタック、認証方式  
-- **SMB**：共有一覧、匿名アクセス、権限  
-- **FTP**：匿名ログイン、書き込み可否  
-- **SSH**：バージョン、脆弱な暗号化方式  
-- **DB（MySQL / PostgreSQL）**：弱パスワード、権限  
-- **メール（SMTP / IMAP）**：VRFY / EXPN  
-- **内部 Web**：Pivot 必須のサービス
+### Web
+- ディレクトリ列挙  
+- 技術スタック  
+- 認証方式  
+- 脆弱性（SQLi / RCE / LFI / SSRF / SSTI / XXE）  
 
+### SMB
+- 共有一覧  
+- Anonymous アクセス  
+- 認証情報（.txt / .conf / .ini）  
+- バックアップファイル  
+- Web ソースコード  
+- AD ドメイン名の取得  
+- NetExec / CrackMapExec での列挙
+
+### LDAP
+- BaseDN  
+- ユーザー列挙  
+- グループ列挙  
+- AD の構造把握  
+- windapsearch / ldapsearch / ldapdomaindump
+
+### Kerberos
+- AS-REP Roasting の対象ユーザー  
+- Kerberoasting の対象 SPN  
+- ドメイン名の確認  
+- Impacket（GetNPUsers / GetUserSPNs）
+
+### FTP
+- anonymous  
+- 書き込み可能か  
+- WebShell アップロード可否
+
+### SSH
+- バナー情報  
+- OS / バージョン  
+- ユーザー名の推測  
+- 公開鍵の有無  
+- ssh2john によるハッシュ抽出
+
+### Database（MySQL / PostgreSQL / MSSQL）
+- 弱パスワード  
+- Web アプリの DB  
+- テーブル構造  
+- xp_cmdshell（MSSQL）  
+- impacket-mssqlclient
+
+### メール（SMTP / IMAP）
+- VRFY / EXPN  
+- ユーザー列挙  
+- swaks / smtp-user-enum
+
+### SNMP
+- snmpwalk による情報漏洩  
+- OSCP では内部情報の宝庫
+
+### 内部 Web
+- Pivot 必須のサービス  
+- AD 管理ポータルが隠れている場合あり
 ※ Boot2Root の Writeup では実際の結果を記録し、  
 Pentest-Playbook では「判断基準」を記述する。
 
@@ -42,167 +94,88 @@ Pentest-Playbook では「判断基準」を記述する。
 
 ## 🛠 代表コマンド（最低限）
 
-- [Web Enumeration](#web-enumeration)  
-- [SMB Enumeration](#smb-enumeration)  
-- [FTP Enumeration](#ftp-enumeration)  
-- [SSH Enumeration](#ssh-enumeration)  
-- [Database Enumeration](#database-enumeration)  
-- [Service-Specific Enumeration](#service-specific-enumeration)  
-- [Vulnerability Research](#vulnerability-research)  
-
-
----
-
-## Web Enumeration
-
-Web は最も突破口が多いため、最優先で深掘りする。
-
-### HTTP Header / Banner
-```
-curl -I http://<TARGET>
-whatweb <TARGET>
-```
-
-#### 確認ポイント
-- Server（Apache / nginx / IIS）  
-- X-Powered-By（PHP / ASP.NET）  
-- リダイレクト先（admin / login）  
-
----
-
 ### Directory / File Enumeration
 ```
 ffuf -u http://<TARGET>/FUZZ -w common.txt -e php,txt,bak,old
 dirsearch -u http://<TARGET>
 ```
 
-#### 確認ポイント
-- 隠しディレクトリ  
-- バックアップファイル  
-- 管理画面  
-- API エンドポイント  
-
----
-
-### Web Application Enumeration
+### Web Enumeration
 ```
+curl -I http://<TARGET>
+whatweb <TARGET>
+ffuf -u http://<TARGET>/FUZZ -w common.txt -e php,txt,bak,old
+dirsearch -u http://<TARGET>
 nikto -h http://<TARGET>
-```
-
-#### 確認ポイント
-- 古い CMS  
-- 既知の脆弱性  
-- 危険な設定  
-
----
-
-### JavaScript / API Enumeration
-```
 curl http://<TARGET>/app.js
 ```
 
-#### 確認ポイント
-- 隠し API  
-- 認証ロジック  
-- 内部 URL  
-
----
-
-## SMB Enumeration
-
+### SMB Enumeration
 ```
 smbclient -N -L //<TARGET>/
 smbclient //<TARGET>/<SHARE>
+smbmap -H <TARGET>
+enum4linux-ng <TARGET>
+netexec smb <TARGET> -u '' -p ''
+rpcclient -U '' <TARGET>
 ```
 
-#### 確認ポイント
-- anonymous アクセス  
-- 認証情報（.txt / .conf / .ini）  
-- バックアップファイル  
-- Web ソースコード  
+### LDAP Enumeration（OSCP強化）
+```
+ldapsearch -x -H ldap://<TARGET> -b "DC=example,DC=com"
+windapsearch --dc-ip <TARGET>
+ldapdomaindump <TARGET>
+```
 
----
+### Kerberos Enumeration（OSCP強化）
+```
+kerbrute userenum --dc <TARGET> users.txt
+GetNPUsers.py <DOMAIN>/ -dc-ip <TARGET>
+GetUserSPNs.py <DOMAIN>/ -dc-ip <TARGET>
+```
 
-## FTP Enumeration
-
+### FTP Enumeration
 ```
 ftp <TARGET>
 ```
 
-#### 確認ポイント
-- anonymous  
-- 書き込み可能か  
-- Web ソースコード  
-- 設定ファイル  
-
----
-
-## SSH Enumeration
-
+### SSH Enumeration
 ```
 ssh -v user@<TARGET>
+ssh-keyscan <TARGET>
 ```
 
-#### 確認ポイント
-- バナー情報  
-- OS / バージョン  
-- ユーザー名の推測  
-- 公開鍵の有無  
-
----
-
-## Database Enumeration
-
-### MySQL
+### Database Enumeration
+#### MySQL
 ```
 mysql -h <TARGET> -u root -p
 ```
 
-#### 確認ポイント
-- 弱パスワード  
-- ユーザー情報  
-- Web アプリの DB  
-
----
-
-### PostgreSQL
+#### PostgreSQL
 ```
 psql -h <TARGET> -U postgres
 ```
 
-#### 確認ポイント
-- 認証情報  
-- テーブル構造  
-- 内部サービスの情報  
+#### MSSQL（OSCP強化）
+```
+impacket-mssqlclient <user>:<pass>@<TARGET>
+```
 
----
-
-## Service-Specific Enumeration
-
-### Redis
+### Service-Specific Enumeration
+#### Redis
 ```
 redis-cli -h <TARGET>
 ```
 
-#### 確認ポイント
-- 未認証アクセス  
-- CONFIG GET dir  
-- SSH key 書き込み可能か  
-
----
-
-### RDP / VNC
+#### RDP / VNC
 ```
 nmap -p 3389 --script rdp-enum-encryption <TARGET>
 ```
 
----
-
-### SNMP
+#### SNMP
 ```
 snmpwalk -v2c -c public <TARGET>
 ```
-
 ---
 
 ## Vulnerability Research
