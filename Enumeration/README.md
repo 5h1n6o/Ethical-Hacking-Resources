@@ -140,17 +140,3 @@ nmap --script vuln <TARGET>
 
 ---
 
-## Boot2Root との連携
-
-Boot2Root の Enumeration 章は軽量化されており、  
-詳細はこのページにリンクされます。
-
-Boot2Root の流れ：
-
-```
-Reconnaissance
-↓
-Enumeration
-↓
-Initial Access
-```
