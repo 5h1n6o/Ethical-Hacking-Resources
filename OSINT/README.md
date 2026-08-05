@@ -55,11 +55,18 @@ whois example.com
 
 # 2. DNS / Subdomain Enumeration
 
-## DNS 基本情報
+## DNS 基本情報（dig）
 ```
-dig A example.com
-dig NS example.com
-dig MX example.com
+dig www.example.com + short
+dig www.example.com MX
+dig www.example.com NS
+dig www.example.com> SOA
+dig www.example.com ANY +noall +answer
+dig -x www.example.com
+dig -4 www.example.com   #For IPv4
+dig -6 www.example.com   #For IPv6
+dig www.example.com mx +noall +answer example.com ns +noall +answer
+dig -t AXFR www.example.com
 ```
 
 ## サブドメイン探索
@@ -71,6 +78,15 @@ amass enum -d example.com
 ## DNSゾーン転送（AXFR）
 ```
 dig AXFR example.com @ns1.example.com
+```
+
+## [dnsrecon](https://github.com/5h1n6o/Security-Tools/blob/main/dnsrecon/README.md)
+
+```
+dnsrecon -d www.example.com -a
+dnsrecon -d www.example.com -t axfr
+dnsrecon -d <startIP-endIP>
+dnsrecon -d www.example.com -D <namelist> -t brt
 ```
 
 ### 確認ポイント
