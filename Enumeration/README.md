@@ -28,156 +28,87 @@ Enumeration は、Reconnaissance で見つけたサービスを **深掘りし�
 Recon で特定した Attack Surface を、  
 サービス単位でさらに詳細に調査する。
 
-### Web
+### 🌐 Web
 - ディレクトリ列挙  
+  - [ffuf](https://github.com/5h1n6o/Security-Tools/blob/main/ffuf/README.md)  
+  - [gobuster](https://github.com/5h1n6o/Security-Tools/blob/main/gobuster/README.md)
 - 技術スタック  
+  - [whatweb](https://github.com/5h1n6o/Security-Tools/blob/main/whatweb/README.md)
 - 認証方式  
+  - [Burp Suite](https://github.com/5h1n6o/Security-Tools/blob/main/burp/README.md)
 - 脆弱性（SQLi / RCE / LFI / SSRF / SSTI / XXE）  
+  - [Burp Suite](https://github.com/5h1n6o/Security-Tools/blob/main/burp/README.md)
+  - [curl](https://github.com/5h1n6o/Security-Tools/blob/main/curl/README.md)
 
-### SMB
+---
+
+### 📁 SMB
 - 共有一覧  
+  - [smbclient](https://github.com/5h1n6o/Security-Tools/blob/main/smbclient/README.md)
+  - [smbmap](https://github.com/5h1n6o/Security-Tools/blob/main/smbmap/README.md)
 - Anonymous アクセス  
-- 認証情報（.txt / .conf / .ini）  
-- バックアップファイル  
-- Web ソースコード  
+  - [enum4linux-ng](https://github.com/5h1n6o/Security-Tools/blob/main/enum4linux-ng/README.md)
+- 認証情報  
+  - [netexec](https://github.com/5h1n6o/Security-Tools/blob/main/netexec/README.md)
 - AD ドメイン名の取得  
-- NetExec / CrackMapExec での列挙
+  - [rpcclient](https://github.com/5h1n6o/Security-Tools/blob/main/rpcclient/README.md)
 
-### LDAP
+---
+
+### 🧬 LDAP
 - BaseDN  
+  - [ldapsearch](https://github.com/5h1n6o/Security-Tools/blob/main/ldapsearch/README.md)
 - ユーザー列挙  
+  - [windapsearch](https://github.com/5h1n6o/Security-Tools/blob/main/windapsearch/README.md)
 - グループ列挙  
-- AD の構造把握  
-- windapsearch / ldapsearch / ldapdomaindump
-
-### Kerberos
-- AS-REP Roasting の対象ユーザー  
-- Kerberoasting の対象 SPN  
-- ドメイン名の確認  
-- Impacket（GetNPUsers / GetUserSPNs）
-
-### FTP
-- anonymous  
-- 書き込み可能か  
-- WebShell アップロード可否
-
-### SSH
-- バナー情報  
-- OS / バージョン  
-- ユーザー名の推測  
-- 公開鍵の有無  
-- ssh2john によるハッシュ抽出
-
-### Database（MySQL / PostgreSQL / MSSQL）
-- 弱パスワード  
-- Web アプリの DB  
-- テーブル構造  
-- xp_cmdshell（MSSQL）  
-- impacket-mssqlclient
-
-### メール（SMTP / IMAP）
-- VRFY / EXPN  
-- ユーザー列挙  
-- swaks / smtp-user-enum
-
-### SNMP
-- snmpwalk による情報漏洩  
-- OSCP では内部情報の宝庫
-
-### 内部 Web
-- Pivot 必須のサービス  
-- AD 管理ポータルが隠れている場合あり
-※ Boot2Root の Writeup では実際の結果を記録し、  
-Pentest-Playbook では「判断基準」を記述する。
+  - [ldapdomaindump](https://github.com/5h1n6o/Security-Tools/blob/main/ldapdomaindump/README.md)
 
 ---
 
-## 🛠 代表コマンド（最低限）
+### 🎭 Kerberos
+- AS-REP Roasting  
+  - [GetNPUsers.py](https://github.com/5h1n6o/Security-Tools/blob/main/impacket/GetNPUsers.md)
+- Kerberoasting  
+  - [GetUserSPNs.py](https://github.com/5h1n6o/Security-Tools/blob/main/impacket/GetUserSPNs.md)
+- Impacket  
+  - [Impacket](https://github.com/5h1n6o/Security-Tools/blob/main/impacket/README.md)
 
-### Directory / File Enumeration
-```
-ffuf -u http://<TARGET_IP>/FUZZ -w /usr/share/wordlists/dirb/common.txt -e .php,.txt,.html -mc 200,204,301,302,307,403
-ffuf -u http://<TARGET_IP> -H "Host: FUZZ.domain.local" -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs <DEFAULT_SIZE>
-dirsearch -u http://<TARGET_IP>
-```
-
-### Web Enumeration
-```
-curl -I http://<TARGET_IP>
-whatweb <TARGET_IP>
-ffuf -u http://<TARGET_IP>/FUZZ -w common.txt -e php,txt,bak,old
-dirsearch -u http://<TARGET_IP>
-nikto -h http://<TARGET_IP>
-curl http://<TARGET_IP>/app.js
-```
-
-### SMB Enumeration
-```
-smbclient -N -L //<TARGET_IP>/
-smbclient //<TARGET_IP>/<SHARE>
-smbmap -H <TARGET_IP>
-enum4linux-ng <TARGET_IP>
-netexec smb <TARGET_IP> -u '' -p ''
-rpcclient -U '' <TARGET_IP>
-```
-
-### LDAP Enumeration（OSCP強化）
-```
-ldapsearch -x -H ldap://<TARGET> -b "DC=example,DC=com"
-windapsearch --dc-ip <TARGET>
-ldapdomaindump <TARGET>
-```
-
-### Kerberos Enumeration（OSCP強化）
-```
-kerbrute userenum --dc <TARGET> users.txt
-GetNPUsers.py <DOMAIN>/ -dc-ip <TARGET>
-GetUserSPNs.py <DOMAIN>/ -dc-ip <TARGET>
-```
-
-### FTP Enumeration
-```
-ftp <TARGET>
-```
-
-### SSH Enumeration
-```
-ssh -v user@<TARGET>
-ssh-keyscan <TARGET>
-```
-
-### Database Enumeration
-#### MySQL
-```
-mysql -h <TARGET> -u root -p
-```
-
-#### PostgreSQL
-```
-psql -h <TARGET> -U postgres
-```
-
-#### MSSQL（OSCP強化）
-```
-impacket-mssqlclient <user>:<pass>@<TARGET>
-```
-
-### Service-Specific Enumeration
-#### Redis
-```
-redis-cli -h <TARGET>
-```
-
-#### RDP / VNC
-```
-nmap -p 3389 --script rdp-enum-encryption <TARGET>
-```
-
-#### SNMP
-```
-snmpwalk -v2c -c public <TARGET>
-```
 ---
+
+### 📡 FTP
+- ftp  
+- curl
+
+---
+
+### 🔐 SSH
+- ssh  
+- [ssh2john](https://github.com/5h1n6o/Security-Tools/blob/main/john/README.md)
+
+---
+
+### 🗄 Database（MySQL / PostgreSQL / MSSQL）
+- mysql  
+- psql  
+- [impacket-mssqlclient](https://github.com/5h1n6o/Security-Tools/blob/main/impacket/mssqlclient.md)
+
+---
+
+### ✉️ メール（SMTP / IMAP）
+- [smtp-user-enum](https://github.com/5h1n6o/Security-Tools/blob/main/smtp-user-enum/README.md)
+- [swaks](https://github.com/5h1n6o/Security-Tools/blob/main/swaks/README.md)
+
+---
+
+### 📡 SNMP
+- [snmpwalk](https://github.com/5h1n6o/Security-Tools/blob/main/snmpwalk/README.md)
+
+---
+
+### 🛰 内部 Web
+- curl  
+- ffuf  
+- proxychains（Pivot後）
 
 ## Vulnerability Research
 
@@ -209,16 +140,6 @@ nmap --script vuln <TARGET>
 
 ---
 
-## 📚 詳細（ツールの使い方）
-ツールの詳細な使い方は Security-Tools に集約しています。
-
-- nmap → Security-Tools / nmap  
-- ffuf → Security-Tools / ffuf  
-- smbclient → Security-Tools / smbclient  
-- redis-cli → Security-Tools / redis  
-- mysql → Security-Tools / mysql
-
----
 ## Boot2Root との連携
 
 Boot2Root の Enumeration 章は軽量化されており、  
