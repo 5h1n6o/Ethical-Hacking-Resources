@@ -139,3 +139,26 @@ Recon の結果から、攻撃可能な面を特定する。
 - [nc(netcat)](https://github.com/5h1n6o/Security-Tools/blob/main/netcat/README.md)
 - [curl]([Curl/README.md](https://github.com/5h1n6o/Security-Tools/blob/main/Curl/README.md))
 
+## 🔗 **参考リソースリンク**  
+- [TCP Port Scanner in Bash](https://catonmat.net/tcp-port-scanner-in-bash)
+
+
+---
+ 
+## 📝 **補足（Notes）**  
+
+### 学習メモ
+
+- bashポートスキャンスクリプト
+
+```bash
+#!/bin/bash
+for port in {1..1000}; do
+ timeout 1 bash -c "echo >/dev/tcp/$1/$port" 2>/dev/null && echo "port $port is open"
+done
+```
+
+- 図解  
+- 注意点  
+
+---
