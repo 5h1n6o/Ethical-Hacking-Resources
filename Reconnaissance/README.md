@@ -104,6 +104,9 @@ Recon の結果から、攻撃可能な面を特定する。
 
 ## 🧪 チートシート：Recon で確認すべき項目
 
+### 🔹 WebDAV
+- HTTPメソッドでPUT,DELETE,MOVE,MKCOLが許可されているか 
+
 ### 🔹 SMB（後続の Enumeration に必須）
 - ポート 445 が開いているか  
 - Anonymous アクセス可否  
@@ -131,13 +134,6 @@ Recon の結果から、攻撃可能な面を特定する。
 ### 🔹 SNMP / SMTP / NFS
 - OSCP では情報漏洩の起点になりやすい  
 
----
-## 📚 詳細（ツールの使い方）
-ツールの詳細な使い方は Security-Tools に集約しています。
-
-- [nmap](https://github.com/5h1n6o/Security-Tools/blob/main/Nmap/README.md)
-- [nc(netcat)](https://github.com/5h1n6o/Security-Tools/blob/main/netcat/README.md)
-- [curl]([Curl/README.md](https://github.com/5h1n6o/Security-Tools/blob/main/Curl/README.md))
 
 ## 🔗 **参考リソースリンク**  
 - [TCP Port Scanner in Bash](https://catonmat.net/tcp-port-scanner-in-bash)
